@@ -1,0 +1,2 @@
+# visualizer
+Music Visualization GUI
