@@ -1,2 +1,2 @@
-# visualizer
-Music Visualization GUI
+# Eden
+Music Player/Visualization
