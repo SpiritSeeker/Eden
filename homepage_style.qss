@@ -3,7 +3,7 @@ QPushButton#edenName {
 	text-align:center;
 	color: #ffffff;
 	background-color:#000000;
-	outline: none;
+	border: none;
 }
 
 QLabel#nowPlayingLabel {
@@ -23,15 +23,15 @@ QPushButton#selectNew {
 	text-align:center;
 	color:#4da6ff;
 	background-color:#000000;
-	outline:none;
+	border:none;
 }
 
 QPushButton#playBtn {
 	background-color:#000000;
-	outline:none;
+	border:none;
 }
 
 QPushButton#stopBtn {
 	background-color:#000000;
-	outline:none;
+	border:none;
 }
