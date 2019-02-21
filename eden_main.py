@@ -1,8 +1,7 @@
 import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
-import pygame
-pygame.init()
+from EMusicPlayer import EMusicPlayer
 
 class Window(QtWidgets.QMainWindow):
 
@@ -14,6 +13,8 @@ class Window(QtWidgets.QMainWindow):
 
 		with open('homepage_style.qss','r') as fh:
 			self.setStyleSheet(fh.read())
+
+		self.emp = EMusicPlayer()	
 
 		openFile = QtWidgets.QAction('&Open File',self)
 		openFile.setShortcut("Ctrl+N")
@@ -83,6 +84,12 @@ class Window(QtWidgets.QMainWindow):
 		self.playBtn.hide()
 		self.stopBtn.hide()
 
+		self.volumeSlider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+		self.volumeSlider.setFocusPolicy(QtCore.Qt.NoFocus)
+		self.volumeSlider.valueChanged[int].connect(self.changeVolume)
+		self.volumeSlider.setValue(100)
+		self.volumeSlider.hide()
+
 		self.playBtn.clicked.connect(self.playHandler)
 		self.stopBtn.clicked.connect(self.stopHandler)
 
@@ -107,24 +114,24 @@ class Window(QtWidgets.QMainWindow):
 
 		self.showMaximized()
 
+	def changeVolume(self, value):
+		self.emp.set_volume(0.01*value)
+
 	def playHandler(self):
-		if self.stopStatus:
-			pygame.mixer.music.play()
-			self.stopStatus = False
+		if self.emp.stop_state:
+			self.emp.play()
 		else:	
-			if self.playStatus:
-				pygame.mixer.music.pause()
-				self.playStatus = False
+			if self.emp.pause_state:
+				self.emp.unpause()
 			else:
-				pygame.mixer.music.unpause()
-				self.playStatus = True		
+				self.emp.pause()		
 
 	def stopHandler(self):
-		pygame.mixer.music.stop()
-		self.stopStatus = True
+		self.emp.stop()
 
 	def filePick(self):
-		self.name = QtWidgets.QFileDialog.getOpenFileName(self,'Open File')
+		fil = "mp3(*.mp3)"
+		self.name = QtWidgets.QFileDialog.getOpenFileName(self,'Open File',filter=fil)
 		if self.name[0] is not '':
 			base = os.path.basename(self.name[0])
 			self.nowPlayingLabel.show()
@@ -135,13 +142,13 @@ class Window(QtWidgets.QMainWindow):
 			self.stopBtn.resize(self.stopBtn.minimumSizeHint())
 			self.playBtn.move(int(self.screenShape.width()/2)-5-self.playBtn.frameGeometry().width(), 75 + self.nowPlayingLabel.frameGeometry().height() + 15 + self.songName.frameGeometry().height())
 			self.stopBtn.move(int(self.screenShape.width()/2)+10, 5 + 75 + self.nowPlayingLabel.frameGeometry().height() + 15 + self.songName.frameGeometry().height())
+			self.volumeSlider.move(int(self.screenShape.width()/2)-5-self.playBtn.frameGeometry().width(), 75 + self.nowPlayingLabel.frameGeometry().height() + 15 + self.songName.frameGeometry().height() + 20 + self.playBtn.frameGeometry().height())
+			self.volumeSlider.resize(10 + self.playBtn.frameGeometry().width() + self.stopBtn.frameGeometry().width(), 45)
 			self.playBtn.show()
 			self.stopBtn.show()
-			self.playStatus = True
-			self.stopStatus = False
-			pygame.mixer.init()
-			pygame.mixer.music.load(self.name[0])
-			pygame.mixer.music.play()
+			self.volumeSlider.show()
+			self.emp.load(self.name[0])
+			self.emp.play()
 		
 	def fade(self, widget, time):
 		self.effect = QtWidgets.QGraphicsOpacityEffect()
