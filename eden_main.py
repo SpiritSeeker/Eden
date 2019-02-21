@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -7,38 +8,51 @@ class Window(QtWidgets.QMainWindow):
 
 	def __init__(self):
 		super(Window, self).__init__()
-		self.setGeometry(50,50,500,300)
-		self.setWindowTitle("Eden")
 		self.screenShape = QtWidgets.QDesktopWidget().screenGeometry()
+		self.setGeometry(0,10,self.screenShape.width()-10,self.screenShape.height()-20)
+		self.setWindowTitle("Eden")
 
-		with open('homepage_style.qss','r') as fh:
+		self.cwd = os.path.dirname(os.path.realpath(__file__))
+
+		with open(self.cwd+'/homepage_style.qss','r') as fh:
 			self.setStyleSheet(fh.read())
 
 		self.emp = EMusicPlayer()	
 
-		openFile = QtWidgets.QAction('&Open File',self)
-		openFile.setShortcut("Ctrl+N")
-		openFile.triggered.connect(self.filePick)
+		self.openFile = QtWidgets.QAction('&Open File',self)
+		self.openFile.setShortcut("Ctrl+N")
+		self.openFile.triggered.connect(self.filePick)
 
-		mainMenu = self.menuBar()
-		fileMenu = mainMenu.addMenu('&File')
-		fileMenu.addAction(openFile)
+		self.mainMenu = self.menuBar()
+		self.fileMenu = self.mainMenu.addMenu('&File')
+		self.fileMenu.addAction(self.openFile)
+		self.addAction(self.openFile)
 
-		exitApp = QtWidgets.QAction('&Exit',self)
-		exitApp.setShortcut('Ctrl+Q')
-		exitApp.triggered.connect(self.close_application)
-		fileMenu.addAction(exitApp)
+		self.exitApp = QtWidgets.QAction('&Exit',self)
+		self.exitApp.setShortcut('Ctrl+Q')
+		self.exitApp.triggered.connect(self.close_application)
+		self.fileMenu.addAction(self.exitApp)
+		self.addAction(self.exitApp)
 
-		playAction = QtWidgets.QAction('&Play/Pause',self)
-		playAction.setShortcut('Space')
-		playAction.triggered.connect(self.playHandler)
+		self.playAction = QtWidgets.QAction('&Play/Pause',self)
+		self.playAction.setShortcut('Space')
+		self.playAction.triggered.connect(self.playHandler)
 
-		stopAction = QtWidgets.QAction('&Stop',self)
-		stopAction.triggered.connect(self.stopHandler)
+		self.stopAction = QtWidgets.QAction('&Stop',self)
+		self.stopAction.triggered.connect(self.stopHandler)
 
-		playbackMenu = mainMenu.addMenu('&Playback')
-		playbackMenu.addAction(playAction)
-		playbackMenu.addAction(stopAction)
+		self.playbackMenu = self.mainMenu.addMenu('&Playback')
+		self.playbackMenu.addAction(self.playAction)
+		self.playbackMenu.addAction(self.stopAction)
+		self.addAction(self.playAction)
+
+		self.fullscreenAction = QtWidgets.QAction('&Fullscreen',self)
+		self.fullscreenAction.setShortcut('F11')
+		self.fullscreenAction.triggered.connect(self.toggle_fullscreen)
+
+		self.viewMenu = self.mainMenu.addMenu('&View')
+		self.viewMenu.addAction(self.fullscreenAction)
+		self.addAction(self.fullscreenAction)
 
 		self.home()
 		
@@ -47,13 +61,21 @@ class Window(QtWidgets.QMainWindow):
 			'Are you sure you want to exit?',
 			QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 		if choice == QtWidgets.QMessageBox.Yes:
+			self.emp.stop()
 			sys.exit()
 		else:
-			pass	
+			pass
 
+	def toggle_fullscreen(self):
+		if self.isFullScreen():
+			self.showMaximized()
+			self.mainMenu.setVisible(True)
+		else:
+			self.showFullScreen()
+			self.mainMenu.setVisible(False)	
 
 	def home(self):
-		oImage = QtGui.QImage('imgs/neon.jpg')
+		oImage = QtGui.QImage(self.cwd+'/imgs/neon.jpg')
 		palette = QtGui.QPalette()
 		palette.setBrush(10, QtGui.QBrush(oImage))
 		self.setPalette(palette)
@@ -73,10 +95,10 @@ class Window(QtWidgets.QMainWindow):
 		self.playBtn.setObjectName('playBtn')
 		self.stopBtn = QtWidgets.QPushButton(self)
 		self.stopBtn.setObjectName('stopBtn')
-		playIcon = QtGui.QIcon('imgs/play.jpg')
+		playIcon = QtGui.QIcon(self.cwd+'/imgs/play.jpg')
 		self.playBtn.setIcon(playIcon)
 		self.playBtn.setIconSize(QtCore.QSize(24,24))
-		stopIcon = QtGui.QIcon('imgs/stop.jpg')
+		stopIcon = QtGui.QIcon(self.cwd+'/imgs/stop.jpg')
 		self.stopBtn.setIcon(stopIcon)
 		self.stopBtn.setIconSize(QtCore.QSize(14,14))
 		self.playBtn.move(int(self.screenShape.width()/2),int(self.screenShape.height()/2))
@@ -112,7 +134,7 @@ class Window(QtWidgets.QMainWindow):
 		self.label.clicked.connect(self.selectNew.show)
 		self.selectNew.clicked.connect(self.filePick)
 
-		self.showMaximized()
+		self.show()
 
 	def changeVolume(self, value):
 		self.emp.set_volume(0.01*value)
@@ -174,4 +196,5 @@ class Window(QtWidgets.QMainWindow):
 if __name__ == "__main__":
 	app = QtWidgets.QApplication(sys.argv)
 	GUI = Window()
+	app.aboutToQuit.connect(GUI.emp.stop)
 	sys.exit(app.exec_())
