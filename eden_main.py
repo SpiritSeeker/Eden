@@ -3,6 +3,7 @@ import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
 from EMusicPlayer import EMusicPlayer
+from time import sleep
 
 class Window(QtWidgets.QMainWindow):
 
@@ -14,45 +15,59 @@ class Window(QtWidgets.QMainWindow):
 
 		self.cwd = os.path.dirname(os.path.realpath(__file__))
 
+		self.setWindowIcon(QtGui.QIcon(self.cwd+'/imgs/logo.png'))
+
 		with open(self.cwd+'/homepage_style.qss','r') as fh:
 			self.setStyleSheet(fh.read())
 
 		self.emp = EMusicPlayer()	
 
-		self.openFile = QtWidgets.QAction('&Open File',self)
-		self.openFile.setShortcut("Ctrl+N")
-		self.openFile.triggered.connect(self.filePick)
+		openFile = QtWidgets.QAction('&Open File',self)
+		openFile.setShortcut("Ctrl+N")
+		openFile.triggered.connect(self.filePick)
 
 		self.mainMenu = self.menuBar()
-		self.fileMenu = self.mainMenu.addMenu('&File')
-		self.fileMenu.addAction(self.openFile)
-		self.addAction(self.openFile)
+		fileMenu = self.mainMenu.addMenu('&File')
+		fileMenu.addAction(openFile)
+		self.addAction(openFile)
 
-		self.exitApp = QtWidgets.QAction('&Exit',self)
-		self.exitApp.setShortcut('Ctrl+Q')
-		self.exitApp.triggered.connect(self.close_application)
-		self.fileMenu.addAction(self.exitApp)
-		self.addAction(self.exitApp)
+		exitApp = QtWidgets.QAction('&Exit',self)
+		exitApp.setShortcut('Ctrl+Q')
+		exitApp.triggered.connect(self.close_application)
+		fileMenu.addAction(exitApp)
+		self.addAction(exitApp)
 
-		self.playAction = QtWidgets.QAction('&Play/Pause',self)
-		self.playAction.setShortcut('Space')
-		self.playAction.triggered.connect(self.playHandler)
+		playAction = QtWidgets.QAction('&Play/Pause',self)
+		playAction.setShortcut('Space')
+		playAction.triggered.connect(self.playHandler)
 
-		self.stopAction = QtWidgets.QAction('&Stop',self)
-		self.stopAction.triggered.connect(self.stopHandler)
+		playbackMenu = self.mainMenu.addMenu('&Playback')
+		playbackMenu.addAction(playAction)
 
-		self.playbackMenu = self.mainMenu.addMenu('&Playback')
-		self.playbackMenu.addAction(self.playAction)
-		self.playbackMenu.addAction(self.stopAction)
-		self.addAction(self.playAction)
+		playAction = QtWidgets.QAction('&Stop',self)
+		playAction.triggered.connect(self.stopHandler)
 
-		self.fullscreenAction = QtWidgets.QAction('&Fullscreen',self)
-		self.fullscreenAction.setShortcut('F11')
-		self.fullscreenAction.triggered.connect(self.toggle_fullscreen)
+		playbackMenu.addAction(playAction)
+		self.addAction(playAction)
 
-		self.viewMenu = self.mainMenu.addMenu('&View')
-		self.viewMenu.addAction(self.fullscreenAction)
-		self.addAction(self.fullscreenAction)
+		playbackMenu.addSeparator()
+
+		self.deviceMenu = playbackMenu.addMenu('&Output Devices')
+		self.refreshAction = QtWidgets.QAction('&Refresh Device List',self)
+		self.defaultAction = QtWidgets.QAction('&Use Default Device', self)
+		self.defaultAction.triggered.connect(self.set_default_device)
+		self.refreshAction.triggered.connect(self.refreshList)
+		self.deviceMenu.addAction(self.refreshAction)
+
+		self.refreshList()
+
+		fullscreenAction = QtWidgets.QAction('&Fullscreen',self)
+		fullscreenAction.setShortcut('F11')
+		fullscreenAction.triggered.connect(self.toggle_fullscreen)
+
+		viewMenu = self.mainMenu.addMenu('&View')
+		viewMenu.addAction(fullscreenAction)
+		self.addAction(fullscreenAction)
 
 		self.home()
 		
@@ -65,6 +80,20 @@ class Window(QtWidgets.QMainWindow):
 			sys.exit()
 		else:
 			pass
+
+	def set_default_device(self):
+		self.emp.use_default = True		
+
+	def refreshList(self):
+		self.deviceMenu.clear()
+		self.deviceMenu.addAction(self.refreshAction)
+		self.deviceMenu.addSeparator()
+		for i in range(self.emp.dev_num):
+			devName = self.emp.get_device_name(i)
+			deviceDisp = QtWidgets.QAction('&'+devName,self)
+			deviceDisp.triggered.connect(lambda state, x=devName: self.emp.set_device(x))
+			self.deviceMenu.addAction(deviceDisp)
+		self.deviceMenu.addAction(self.defaultAction)	
 
 	def toggle_fullscreen(self):
 		if self.isFullScreen():

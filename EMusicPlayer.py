@@ -94,6 +94,10 @@ except AttributeError:
 def to_al_format(channels, samples):
     return _EMusicPlayer.to_al_format(channels, samples)
 to_al_format = _EMusicPlayer.to_al_format
+
+def list_audio_devices(devs, devices, number):
+    return _EMusicPlayer.list_audio_devices(devs, devices, number)
+list_audio_devices = _EMusicPlayer.list_audio_devices
 class EMusicPlayer(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, EMusicPlayer, name, value)
@@ -108,6 +112,18 @@ class EMusicPlayer(_object):
     __swig_getmethods__["stop_state"] = _EMusicPlayer.EMusicPlayer_stop_state_get
     if _newclass:
         stop_state = _swig_property(_EMusicPlayer.EMusicPlayer_stop_state_get, _EMusicPlayer.EMusicPlayer_stop_state_set)
+    __swig_setmethods__["dev_num"] = _EMusicPlayer.EMusicPlayer_dev_num_set
+    __swig_getmethods__["dev_num"] = _EMusicPlayer.EMusicPlayer_dev_num_get
+    if _newclass:
+        dev_num = _swig_property(_EMusicPlayer.EMusicPlayer_dev_num_get, _EMusicPlayer.EMusicPlayer_dev_num_set)
+    __swig_setmethods__["current_device"] = _EMusicPlayer.EMusicPlayer_current_device_set
+    __swig_getmethods__["current_device"] = _EMusicPlayer.EMusicPlayer_current_device_get
+    if _newclass:
+        current_device = _swig_property(_EMusicPlayer.EMusicPlayer_current_device_get, _EMusicPlayer.EMusicPlayer_current_device_set)
+    __swig_setmethods__["use_default"] = _EMusicPlayer.EMusicPlayer_use_default_set
+    __swig_getmethods__["use_default"] = _EMusicPlayer.EMusicPlayer_use_default_get
+    if _newclass:
+        use_default = _swig_property(_EMusicPlayer.EMusicPlayer_use_default_get, _EMusicPlayer.EMusicPlayer_use_default_set)
 
     def __init__(self):
         this = _EMusicPlayer.new_EMusicPlayer()
@@ -118,11 +134,23 @@ class EMusicPlayer(_object):
     __swig_destroy__ = _EMusicPlayer.delete_EMusicPlayer
     __del__ = lambda self: None
 
+    def device_reset(self, name):
+        return _EMusicPlayer.EMusicPlayer_device_reset(self, name)
+
+    def dev_check(self):
+        return _EMusicPlayer.EMusicPlayer_dev_check(self)
+
+    def update_device_list(self):
+        return _EMusicPlayer.EMusicPlayer_update_device_list(self)
+
+    def get_device_name(self, index):
+        return _EMusicPlayer.EMusicPlayer_get_device_name(self, index)
+
+    def set_device(self, new_device_name):
+        return _EMusicPlayer.EMusicPlayer_set_device(self, new_device_name)
+
     def load(self, path):
         return _EMusicPlayer.EMusicPlayer_load(self, path)
-
-    def play_task(self):
-        return _EMusicPlayer.EMusicPlayer_play_task(self)
 
     def set_volume(self, newVolume):
         return _EMusicPlayer.EMusicPlayer_set_volume(self, newVolume)
