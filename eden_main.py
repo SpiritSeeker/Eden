@@ -2,7 +2,7 @@
 import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
-from EMusicPlayer import EMusicPlayer
+from EdenPlayer.EMusicPlayer import EMusicPlayer
 from time import sleep
 
 class Window(QtWidgets.QMainWindow):
@@ -160,7 +160,7 @@ class Window(QtWidgets.QMainWindow):
 		self.selectNew.move(int((self.screenShape.width()-self.selectNew.frameGeometry().width())/2), int((self.screenShape.height()-self.label.frameGeometry().height())*2/3)+self.label.frameGeometry().height())
 		self.selectNew.hide()
 
-		self.label.clicked.connect(self.selectNew.show)
+		self.label.clicked.connect(lambda: self.unfade(self.selectNew, 1500))
 		self.selectNew.clicked.connect(self.filePick)
 
 		self.show()
@@ -202,20 +202,21 @@ class Window(QtWidgets.QMainWindow):
 			self.emp.play()
 		
 	def fade(self, widget, time):
-		self.effect = QtWidgets.QGraphicsOpacityEffect()
-		widget.setGraphicsEffect(self.effect)
+		effect = QtWidgets.QGraphicsOpacityEffect()
+		widget.setGraphicsEffect(effect)
 
-		self.animation = QtCore.QPropertyAnimation(self.effect, b"opacity")
+		self.animation = QtCore.QPropertyAnimation(effect, b"opacity")
 		self.animation.setDuration(time)
 		self.animation.setStartValue(1)
 		self.animation.setEndValue(0)
 		self.animation.start()
 
 	def unfade(self, widget, time):
-		self.effect = QtWidgets.QGraphicsOpacityEffect()
-		widget.setGraphicsEffect(self.effect)
+		effect = QtWidgets.QGraphicsOpacityEffect()
+		widget.setGraphicsEffect(effect)
+		widget.show()
 
-		self.animation = QtCore.QPropertyAnimation(self.effect, b"opacity")
+		self.animation = QtCore.QPropertyAnimation(effect, b"opacity")
 		self.animation.setDuration(time)
 		self.animation.setStartValue(0)
 		self.animation.setEndValue(1)
