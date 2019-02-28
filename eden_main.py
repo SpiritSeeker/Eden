@@ -105,6 +105,7 @@ class Window(QtWidgets.QMainWindow):
 
 	def home(self):
 		oImage = QtGui.QImage(self.cwd+'/imgs/neon.jpg')
+		oImage = oImage.scaled(self.screenShape.width(),self.screenShape.height())
 		palette = QtGui.QPalette()
 		palette.setBrush(10, QtGui.QBrush(oImage))
 		self.setPalette(palette)
