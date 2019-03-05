@@ -9,6 +9,8 @@
 #include <string>
 #include <cstdlib>
 #include <vector>
+#include <fftw3.h>
+#include <cmath>
 
 using namespace std;
 
@@ -74,11 +76,37 @@ class EMusicPlayer
 		char *current_song = NULL;
 		thread t_play, t_dev_check;
 		list<char*> devs;
+		list<double*> raw_fft_values;
 		vector <string> device_list;
 		int prev_num_dev = 0;
 		char *new_device = NULL;
 		bool exit_status = false;
 		ALCint connected;
+		double in[4096];
+		fftw_complex out[2049];
+		fftw_plan plan;
+
+		void fft_init(){
+			plan = fftw_plan_dft_r2c_1d(4096,in,out,FFTW_MEASURE);
+		}	
+
+		void raw_fft(unsigned char* inp_buffer){
+			double buffer_fft[n_point] = {};
+			for (int i = 0; i < 4096; i++)
+				in[i] = (double)((((int)inp_buffer[i])/256.0)-0.5);
+			cout<<in[56]<<endl;
+			fftw_execute(plan);
+			int start_index = (int)((start_freq * 2049 * 2)/rate);
+			int stop_index = (int)((stop_freq * 2049 * 2)/rate);
+			int index_number = stop_index - start_index;
+			for (int i = start_index; i < stop_index; i++)
+				buffer_fft[(int)((i-start_index)*n_point/index_number)] += (1/2049.0)*sqrt(pow(out[i][0],2)+pow(out[i][1],2));
+			raw_fft_values.push_back(buffer_fft);
+		
+			for (int i = 0; i < n_point; i++)
+				cout<<buffer_fft[i]<<", ";
+			cout<<endl;
+		}
 		
 		void play_task(){
 			while(!stop_state){
@@ -92,6 +120,7 @@ class EMusicPlayer
 
 					if (!bufferQueue.empty()){
 						if (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
+							raw_fft(buffer);
 							myBuff = bufferQueue.front(); 
 							bufferQueue.pop_front();
 							alBufferData(myBuff, to_al_format(channels, mpg123_encsize(encoding)), buffer, done, rate);
@@ -119,6 +148,7 @@ class EMusicPlayer
 									exit(0);
 								}	
 							}
+							raw_fft(buffer);
 						}
 						else{
 							stop();
@@ -222,6 +252,9 @@ class EMusicPlayer
 		int dev_num;
 		char* current_device = NULL;
 		bool use_default = true;
+		int n_point = 10;
+		int start_freq = 10;
+		int stop_freq = 5600;
 		EMusicPlayer(){
 
 			// Open Default Audio Device
@@ -274,6 +307,8 @@ class EMusicPlayer
 			availBuffers = 0;
 			pause_state = false;
 			stop_state = true;
+
+			fft_init();
 
 			t_dev_check = thread(&EMusicPlayer::dev_check, this);
 			// dev_check();
