@@ -192,10 +192,15 @@ class Window(QtWidgets.QMainWindow):
 	def stopHandler(self):
 		self.emp.stop()
 
+	def set_position(self):
+		self.emp.set_play_position(self.progressBar.value()/4)
+		
+
 	def filePick(self):
 		fil = "mp3(*.mp3)"
 		self.name = QtWidgets.QFileDialog.getOpenFileName(self,'Open File',filter=fil)
 		if self.name[0] is not '':
+			self.emp.load(self.name[0])
 			base = os.path.basename(self.name[0])
 			self.nowPlayingLabel.show()
 			self.songName.setText(os.path.splitext(base)[0])
@@ -210,7 +215,15 @@ class Window(QtWidgets.QMainWindow):
 			self.playBtn.show()
 			self.stopBtn.show()
 			self.volumeSlider.show()
-			self.emp.load(self.name[0])
+			self.progressBar = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
+			self.progressBar.setFocusPolicy(QtCore.Qt.NoFocus)
+			self.progressBar.setMinimum(0)
+			self.progressBar.setMaximum(int(self.emp.duration*4))
+			self.progressBar.sliderReleased.connect(self.set_position)
+			self.progressBar.resize(800,50)
+			self.progressBar.move(int((self.screenShape.width()/2)-400), 75 + self.nowPlayingLabel.frameGeometry().height() + 15 + self.songName.frameGeometry().height() + 20 + self.playBtn.frameGeometry().height() + 75)
+			self.progressBar.setValue(0)
+			self.progressBar.show()
 			self.emp.play()
 		
 	def fade(self, widget, time):
