@@ -376,6 +376,9 @@ class EMusicPlayer
 		void play(){
 			if (t_play.joinable())
 				t_play.join();
+			double sec;
+			mpg123_timeframe(mh,&sec);
+			cout<<sec<<endl;
 			stop_state = false;
 			pause_state = false;
 			t_play = thread(&EMusicPlayer::play_task, this);
