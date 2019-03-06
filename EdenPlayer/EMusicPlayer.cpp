@@ -83,8 +83,10 @@ class EMusicPlayer
 		bool exit_status = false;
 		ALCint connected;
 		double in[4096];
+		double* fft_out;
 		fftw_complex out[2049];
 		fftw_plan plan;
+		bool vis_state;
 
 		void fft_init(){
 			plan = fftw_plan_dft_r2c_1d(4096,in,out,FFTW_MEASURE);
@@ -102,10 +104,6 @@ class EMusicPlayer
 			for (int i = start_index; i < stop_index; i++)
 				buffer_fft[(int)((i-start_index)*n_point/index_number)] += (1/2049.0)*sqrt(pow(out[i][0],2)+pow(out[i][1],2));
 			raw_fft_values.push_back(buffer_fft);
-		
-			for (int i = 0; i < n_point; i++)
-				cout<<buffer_fft[i]<<", ";
-			cout<<endl;
 		}
 		
 		void play_task(){
@@ -120,7 +118,8 @@ class EMusicPlayer
 
 					if (!bufferQueue.empty()){
 						if (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
-							raw_fft(buffer);
+							if (vis_state)
+								raw_fft(buffer);
 							myBuff = bufferQueue.front(); 
 							bufferQueue.pop_front();
 							alBufferData(myBuff, to_al_format(channels, mpg123_encsize(encoding)), buffer, done, rate);
@@ -148,7 +147,6 @@ class EMusicPlayer
 									exit(0);
 								}	
 							}
-							raw_fft(buffer);
 						}
 						else{
 							stop();
@@ -307,13 +305,12 @@ class EMusicPlayer
 			availBuffers = 0;
 			pause_state = false;
 			stop_state = true;
-
-			fft_init();
+			vis_state = false;
 
 			t_dev_check = thread(&EMusicPlayer::dev_check, this);
-			// dev_check();
 		}
 		~EMusicPlayer(){
+			visualizer_stop();
 			if (t_play.joinable())
 				t_play.join();
 			exit_status = true;
@@ -340,6 +337,26 @@ class EMusicPlayer
 			usleep(100*1000);
 			use_default = false;
 			device_reset((const char*)new_device_name.c_str());
+		}
+
+		void visualizer_init(){
+			fft_init();
+			vis_state = true;
+		}
+
+		void visualizer_stop(){
+			vis_state = false;
+			usleep((buffer_size*1000)/rate);
+			fftw_destroy_plan(plan);
+			fftw_cleanup();
+		}
+
+		double* get_spectrum(){
+			free(fft_out);
+			fft_out = (double*)malloc(n_point*sizeof(double));
+			fft_out = raw_fft_values.front();
+			raw_fft_values.pop_front();
+			return fft_out;
 		}
 		
 		void load(const char* path){
