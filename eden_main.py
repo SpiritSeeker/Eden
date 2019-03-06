@@ -69,6 +69,17 @@ class Window(QtWidgets.QMainWindow):
 		viewMenu.addAction(fullscreenAction)
 		self.addAction(fullscreenAction)
 
+		shortFwdAction = QtWidgets.QAction(self)
+		shortFwdAction.setShortcut('Shift+Right')
+		shortFwdAction.triggered.connect(self.emp.short_jump_forward)
+
+		shortBwdAction = QtWidgets.QAction(self)
+		shortBwdAction.setShortcut('Shift+Left')
+		shortBwdAction.triggered.connect(self.emp.short_jump_backward)
+
+		self.addAction(shortFwdAction)
+		self.addAction(shortBwdAction)
+
 		self.home()
 		
 	def close_application(self):

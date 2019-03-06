@@ -118,6 +118,7 @@ class EMusicPlayer
 
 					if (!bufferQueue.empty()){
 						if (mpg123_read(mh, buffer, buffer_size, &done) == MPG123_OK){
+							current_position = mpg123_tellframe(mh)*mpg123_tpf(mh);
 							if (vis_state)
 								raw_fft(buffer);
 							myBuff = bufferQueue.front(); 
@@ -253,6 +254,8 @@ class EMusicPlayer
 		int n_point = 10;
 		int start_freq = 10;
 		int stop_freq = 5600;
+		float duration;
+		float current_position;
 		EMusicPlayer(){
 
 			// Open Default Audio Device
@@ -367,18 +370,35 @@ class EMusicPlayer
 			mpg123_close(mh);
 			mpg123_open(mh, (const char*)current_song);
 			mpg123_getformat(mh, &rate, &channels, &encoding);
+			duration = mpg123_length(mh)*mpg123_tpf(mh)/((float)mpg123_spf(mh));
 		}
 
 		void set_volume(float newVolume){
 			alSourcef(source, AL_GAIN, newVolume);
 		}
 
+		void set_play_position(float offset){
+			mpg123_seek_frame(mh, (int)(offset/mpg123_tpf(mh)), SEEK_SET);
+		}
+
+		void short_jump_forward(){
+			int dur = (int)(5/mpg123_tpf(mh)) + mpg123_tellframe(mh);
+			if (dur >= (mpg123_length(mh)/((float)mpg123_spf(mh))))
+				stop();
+			else
+				mpg123_seek_frame(mh, dur, SEEK_SET);
+		}
+
+		void short_jump_backward(){
+			int dur = mpg123_tellframe(mh) - (int)(5/mpg123_tpf(mh));
+			if (dur < 0)
+				dur = 0;
+			mpg123_seek_frame(mh, dur, SEEK_SET);
+		}
+
 		void play(){
 			if (t_play.joinable())
 				t_play.join();
-			double sec;
-			mpg123_timeframe(mh,&sec);
-			cout<<sec<<endl;
 			stop_state = false;
 			pause_state = false;
 			t_play = thread(&EMusicPlayer::play_task, this);
@@ -427,19 +447,24 @@ class EMusicPlayer
 // 		usleep(1000 * 1000);
 // 		cout<<i<<endl;
 // 	}
-// 	eden.set_device((const char*)eden.get_device_name(1).c_str());		
+// 	eden.set_play_position(10);
+// 	// eden.set_device((const char*)eden.get_device_name(1).c_str());		
 // 		// eden.pause();
 // 		// cout<<"Playing Stopped"<<endl;
 // 	usleep(4000*1000);
-// 	eden.set_device((const char*)eden.get_device_name(2).c_str());
+// 	// eden.set_device((const char*)eden.get_device_name(2).c_str());
 // 		// eden.unpause();
 // 		// cout<<"Resume"<<endl;
+// 	eden.set_play_position(60);
 // 	usleep(4000*1000);
-// 	eden.set_device((const char*)eden.get_device_name(0).c_str());		
+// 	eden.short_jump_forward();
+// 	// eden.set_device((const char*)eden.get_device_name(0).c_str());		
 // 		// eden.stop();
 // 		// usleep(500*1000);
 // 		// cout<<"Done Sleepin"<<endl;
 // 		// eden.play();
-// 	usleep(2000*1000);
+// 	usleep(5000*1000);
+// 	eden.short_jump_backward();
+// 	usleep(5000*1000);
 // 	exit(0);
 // }
