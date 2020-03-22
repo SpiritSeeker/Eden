@@ -1,2 +1,0 @@
-# Eden
-Music Player/Visualization
