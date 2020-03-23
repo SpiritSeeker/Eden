@@ -1,3 +1,4 @@
+#include "edenpch.h"
 #include "Application.h"
 
 namespace Eden {
@@ -8,6 +9,8 @@ namespace Eden {
 	{
 		// Put assert here
 		s_Instance = this;
+
+		m_Player = std::unique_ptr<Player>(Player::Create());
 	}
 
 	Application::~Application()
@@ -16,7 +19,13 @@ namespace Eden {
 
 	void Application::Run()
 	{
+		m_Player->Load("/home/sanjeet/Downloads/transfer/old/1216.mp3");
+		m_Player->Play();
+		msleep(10000);
+		m_Player->Pause();
+		msleep(5000);
+		m_Player->Play();
 		while (m_Running);
 	}
-	
+
 }

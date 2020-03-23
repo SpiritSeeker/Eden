@@ -1,5 +1,7 @@
 #pragma once
 
+#include "edenpch.h"
+
 #include "Eden/Player.h"
 #include "Eden/Core.h"
 
@@ -12,6 +14,8 @@ namespace Eden {
 		virtual ~Application();
 	
 		void Run();
+
+		inline static Application& Get() { return *s_Instance; }
 	private:
 		std::unique_ptr<Player> m_Player;
 		bool m_Running = true;

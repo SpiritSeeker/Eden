@@ -48,6 +48,12 @@ project "Eden"
 		"EDEN_BUILD_DLL"
 	}
 
+	links
+	{
+		"mpg123",
+		"openal"
+	}
+
 	filter "system:linux"
 		cppdialect "C++17"
 		staticruntime "On"
