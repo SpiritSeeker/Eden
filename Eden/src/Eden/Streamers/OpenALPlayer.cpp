@@ -70,12 +70,15 @@ namespace Eden {
 		m_AvailBuffers = 0;
 		m_State = PlayerEmpty;
 
+		m_UseDefaultOutput = true;
+		t_DevCheck = std::thread(&OpenALPlayer::DeviceCheck, this);
 		EDEN_INFO("OpenAL Player Initialized!");
 	}
 
 	void OpenALPlayer::InitDevice(const char* device_name)
 	{
 		// Initialize and set device
+		EDEN_INFO("Initializing New Device!");
 		m_Device = alcOpenDevice(device_name);
 		if (!m_Device)
 		{
@@ -115,16 +118,25 @@ namespace Eden {
 			exit(0);
 		}
 		
+		m_BufferQueue.clear();
 		// Push buffers into queue
 		for (int ii = 0; ii < 4; ii++)
+		{
 			m_BufferQueue.push_back(m_BufferID[ii]);
+			EDEN_INFO("{0}", m_BufferID[ii]);
+		}
+		EDEN_INFO("New Device {0} Initialized!", m_CurrentDeviceName);
 	}
 
 	void OpenALPlayer::Shutdown()
 	{
+		Stop();
+		m_State = PlayerExit;
 		// Cleanup
 		if (t_Play.joinable())
 			t_Play.join();
+		if (t_DevCheck.joinable())
+			t_DevCheck.join();
 		alDeleteSources(1, &m_Source);
 		alDeleteBuffers(4, m_BufferID);
 		m_Device = alcGetContextsDevice(m_Context);
@@ -150,8 +162,8 @@ namespace Eden {
 		bool play = false;
 		if (m_State == PlayerPlay)
 		{
-			bool play = true;
-			m_State = PlayerPause;
+			play = true;
+			Pause();
 			msleep((float)m_BufferSize / m_Rate);
 		}
 
@@ -163,14 +175,15 @@ namespace Eden {
 		InitDevice(device_name);
 
 		if (play)
-			m_State = PlayerPlay;
+			Play();
 	}
 
-	void OpenALPlayer::SetDevice(std::string& device_name)
+	void OpenALPlayer::SetDevice(const std::string& device_name)
 	{
 		EDEN_INFO("Setting output device: {0}", device_name);
 
 		msleep(100);
+		m_UseDefaultOutput = false;
 		DeviceReset((const char*)device_name.c_str());
 		EDEN_INFO("Output device set!");
 	}
@@ -191,7 +204,7 @@ namespace Eden {
 	void OpenALPlayer::Play()
 	{
 		EDEN_TRACE("Playing song: {0}", m_CurrentSong);
-		
+		EDEN_INFO("{0}", m_State);
 		if (m_State == PlayerStop)
 		{
 			m_State = PlayerPlay;
@@ -203,9 +216,10 @@ namespace Eden {
 		else if (m_State == PlayerPause)
 		{
 			m_State = PlayerPlay;
-			alSourcePlay(m_Source);
-			alGetError();
+			// alSourcePlay(m_Source);
+			// alGetError();
 		}
+		EDEN_TRACE("Out of Play!");
 	}
 
 	void OpenALPlayer::Pause()
@@ -268,6 +282,7 @@ namespace Eden {
 
 						m_MyBuff = m_BufferQueue.front();
 						m_BufferQueue.pop_front();
+						EDEN_TRACE("{0}", m_MyBuff);
 						alBufferData(m_MyBuff, to_al_format(m_Channels, mpg123_encsize(m_Encoding)), m_Buffer, m_Done, m_Rate);
 						if ((m_Error = alGetError()) != AL_NO_ERROR)
 						{
@@ -310,6 +325,37 @@ namespace Eden {
 			}
 
 			msleep((float)m_BufferSize / m_Rate);
+		}
+	}
+
+	void OpenALPlayer::DeviceCheck()
+	{
+		while (m_State > PlayerExit)
+		{
+			std::list<std::string> temp = list_audio_devices(alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER));
+			alGetError();
+
+			if (m_UseDefaultOutput)
+			{
+				std::string currentDevice(alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER));
+				alGetError();
+				if (m_CurrentDeviceName.compare(currentDevice) != 0)
+					DeviceReset(NULL);
+			}
+
+			else
+			{
+				if (std::find(temp.begin(), temp.end(), m_CurrentDeviceName) == temp.end())
+				{
+					EDEN_TRACE("In else");
+					m_UseDefaultOutput = true;
+					DeviceReset(NULL);
+					EDEN_INFO("Out of else");
+				}
+			}
+
+			m_DeviceList = temp;
+			msleep(100);
 		}
 	}
 

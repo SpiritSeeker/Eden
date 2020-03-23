@@ -6,6 +6,8 @@
 #include <AL/alc.h>
 #include <mpg123.h>
 
+// Add preferred output later.
+// Improve multithreading. Currently very unstable.
 namespace Eden {
 
 	class OpenALPlayer : public Player
@@ -21,16 +23,17 @@ namespace Eden {
 
 		PlayerState GetPlayerState() override { return m_State; }
 
-		void SetDevice(std::string& device_name);
-		std::string GetCurrentDevice() { return m_CurrentDeviceName; }
-		std::list<std::string> GetDeviceList() { return m_DeviceList; }
+		void SetDevice(const std::string& device_name) override;
+		std::string GetCurrentDevice() override { return m_CurrentDeviceName; }
+		std::list<std::string> GetDeviceList() override { return m_DeviceList; }
+		void UpdateDeviceList() override;
 	private:
 		virtual void Init();
 		virtual void Shutdown();
-		void UpdateDeviceList();
 		void DeviceReset(const char* device_name);
 		void InitDevice(const char* device_name);
 		void AsyncPlay();
+		void DeviceCheck();
 	private:
 		mpg123_handle*            m_mh;
 		long unsigned int         m_BufferSize;
@@ -61,6 +64,7 @@ namespace Eden {
 
 		std::thread               t_Play;
 		std::thread               t_DevCheck;
+		bool                      m_UseDefaultOutput;
 
 		PlayerState               m_State;
 	};

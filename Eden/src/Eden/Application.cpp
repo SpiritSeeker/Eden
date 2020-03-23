@@ -21,11 +21,8 @@ namespace Eden {
 	{
 		m_Player->Load("/home/sanjeet/Downloads/transfer/old/1216.mp3");
 		m_Player->Play();
-		msleep(10000);
-		m_Player->Pause();
-		msleep(5000);
-		m_Player->Play();
-		while (m_Running);
+		while (m_Running)
+			msleep(100);
 	}
 
 }

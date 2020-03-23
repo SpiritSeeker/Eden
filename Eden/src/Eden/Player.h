@@ -8,7 +8,7 @@ namespace Eden {
 	// Empty implies song not loaded
 	enum PlayerState
 	{
-		PlayerEmpty, PlayerStop, PlayerPause, PlayerPlay
+		PlayerExit, PlayerEmpty, PlayerStop, PlayerPause, PlayerPlay
 	};
 
 	class EDEN_API Player
@@ -22,6 +22,11 @@ namespace Eden {
 		virtual void Stop() = 0;
 
 		virtual PlayerState GetPlayerState() = 0;
+
+		virtual void SetDevice(const std::string& device_name) = 0;
+		virtual std::string GetCurrentDevice() = 0;
+		virtual std::list<std::string> GetDeviceList() = 0;
+		virtual void UpdateDeviceList() = 0;
 
 		static Player* Create();
 	};
