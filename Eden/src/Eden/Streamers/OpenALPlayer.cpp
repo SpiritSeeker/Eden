@@ -121,10 +121,7 @@ namespace Eden {
 		m_BufferQueue.clear();
 		// Push buffers into queue
 		for (int ii = 0; ii < 4; ii++)
-		{
 			m_BufferQueue.push_back(m_BufferID[ii]);
-			EDEN_INFO("{0}", m_BufferID[ii]);
-		}
 		EDEN_INFO("New Device {0} Initialized!", m_CurrentDeviceName);
 	}
 
@@ -204,7 +201,6 @@ namespace Eden {
 	void OpenALPlayer::Play()
 	{
 		EDEN_TRACE("Playing song: {0}", m_CurrentSong);
-		EDEN_INFO("{0}", m_State);
 		if (m_State == PlayerStop)
 		{
 			m_State = PlayerPlay;
@@ -216,10 +212,9 @@ namespace Eden {
 		else if (m_State == PlayerPause)
 		{
 			m_State = PlayerPlay;
-			// alSourcePlay(m_Source);
-			// alGetError();
+			alSourcePlay(m_Source);
+			alGetError();
 		}
-		EDEN_TRACE("Out of Play!");
 	}
 
 	void OpenALPlayer::Pause()
@@ -261,7 +256,6 @@ namespace Eden {
 
 	void OpenALPlayer::AsyncPlay()
 	{
-		EDEN_TRACE("In AsyncPlay!");
 		while (m_State > PlayerStop)
 		{
 			if (m_State == PlayerPlay)
@@ -282,7 +276,6 @@ namespace Eden {
 
 						m_MyBuff = m_BufferQueue.front();
 						m_BufferQueue.pop_front();
-						EDEN_TRACE("{0}", m_MyBuff);
 						alBufferData(m_MyBuff, to_al_format(m_Channels, mpg123_encsize(m_Encoding)), m_Buffer, m_Done, m_Rate);
 						if ((m_Error = alGetError()) != AL_NO_ERROR)
 						{
@@ -347,10 +340,8 @@ namespace Eden {
 			{
 				if (std::find(temp.begin(), temp.end(), m_CurrentDeviceName) == temp.end())
 				{
-					EDEN_TRACE("In else");
 					m_UseDefaultOutput = true;
 					DeviceReset(NULL);
-					EDEN_INFO("Out of else");
 				}
 			}
 
