@@ -1,3 +1,6 @@
 [submodule "Eden/vendor/spdlog"]
 	path = Eden/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "Eden/vendor/GLFW"]
+	path = Eden/vendor/GLFW
+	url = https://github.com/SpiritSeeker/GLFW

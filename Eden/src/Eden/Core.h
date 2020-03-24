@@ -15,3 +15,7 @@
 #else
 	#error Eden only supports Windows and Linux!
 #endif
+
+#define BIT(x) (1 << x)
+
+#define EDEN_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)

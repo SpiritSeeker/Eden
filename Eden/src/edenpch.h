@@ -8,6 +8,7 @@
 
 #include <list>
 #include <string>
+#include <sstream>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
