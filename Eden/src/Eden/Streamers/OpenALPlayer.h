@@ -7,7 +7,6 @@
 #include <mpg123.h>
 
 // Add preferred output later.
-// Improve multithreading. Currently very unstable.
 namespace Eden {
 
 	class OpenALPlayer : public Player
@@ -20,16 +19,19 @@ namespace Eden {
 		void Play() override;
 		void Pause() override;
 		void Stop() override;
-
+		
 		PlayerState GetPlayerState() override { return m_State; }
-
-		void SetDevice(const std::string& device_name) override;
-		std::string GetCurrentDevice() override { return m_CurrentDeviceName; }
-		std::list<std::string> GetDeviceList() override { return m_DeviceList; }
-		void UpdateDeviceList() override;
+		double GetCurrentPosition() override { return m_CurrentPosition; }
 	private:
 		virtual void Init();
 		virtual void Shutdown();
+
+		// Command string functions
+		void SetDevice(const std::string& device_name);
+		std::string GetCurrentDevice() { return m_CurrentDeviceName; }
+		std::list<std::string> GetDeviceList() { return m_DeviceList; }
+		void UpdateDeviceList();
+
 		void DeviceReset(const char* device_name);
 		void InitDevice(const char* device_name);
 		void AsyncPlay();

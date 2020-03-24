@@ -40,11 +40,6 @@ static std::list<std::string> list_audio_devices(const ALCchar *devs)
 
 namespace Eden {
 
-	Player* Player::Create()
-	{
-		return new OpenALPlayer();
-	}
-
 	OpenALPlayer::OpenALPlayer()
 	{
 		Init();
@@ -200,7 +195,7 @@ namespace Eden {
 
 	void OpenALPlayer::Play()
 	{
-		EDEN_TRACE("Playing song: {0}", m_CurrentSong);
+		EDEN_TRACE("Playing song!");
 		if (m_State == PlayerStop)
 		{
 			m_State = PlayerPlay;
@@ -221,8 +216,7 @@ namespace Eden {
 	{
 		EDEN_TRACE("Pausing!");
 		m_State = PlayerPause;
-		alSourcePause(m_Source);
-		alGetError();
+		while (!m_PlayLoopWaiting);
 	}
 
 	void OpenALPlayer::Stop()
@@ -230,6 +224,7 @@ namespace Eden {
 		EDEN_TRACE("Stopping!");
 		m_State = PlayerStop;
 		m_CurrentPosition = 0;
+		while (!m_PlayLoopWaiting);
 
 		alGetSourcei(m_Source, AL_SOURCE_STATE, &m_SourceState);
 		alGetError();
