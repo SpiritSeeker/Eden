@@ -34,7 +34,7 @@ static std::list<std::string> list_audio_devices(const ALCchar *devs)
 			device += (len + 1);
 			next += (len + 2);
 	}
-	
+
 	return device_list;
 }
 
@@ -117,7 +117,7 @@ namespace Eden {
 			EDEN_ERROR("Failed to generate buffers! {0}", m_Error);
 			exit(0);
 		}
-		
+
 		m_BufferQueue.clear();
 		// Push buffers into queue
 		for (int ii = 0; ii < 4; ii++)
@@ -161,7 +161,7 @@ namespace Eden {
 		{
 			play = true;
 			Pause();
-			msleep((float)m_BufferSize / m_Rate);
+			while (!m_PlayLoopWaiting);
 		}
 
 		alcMakeContextCurrent(NULL);
@@ -260,6 +260,7 @@ namespace Eden {
 		{
 			if (m_State == PlayerPlay)
 			{
+				m_PlayLoopWaiting = false;
 				alGetSourcei(m_Source, AL_BUFFERS_PROCESSED, &m_AvailBuffers);
 				if (m_AvailBuffers > 0)
 				{
@@ -317,6 +318,7 @@ namespace Eden {
 				}
 			}
 
+			m_PlayLoopWaiting = true;
 			msleep((float)m_BufferSize / m_Rate);
 		}
 	}

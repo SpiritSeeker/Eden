@@ -2,11 +2,11 @@
 
 #include "edenpch.h"
 
-#include "Eden/Player.h"
 #include "Eden/Core.h"
+#include "Eden/Window.h"
+#include "Eden/Player.h"
 #include "Eden/Events/Event.h"
 #include "Eden/Events/ApplicationEvent.h"
-#include "Eden/Window.h"
 
 namespace Eden {
 

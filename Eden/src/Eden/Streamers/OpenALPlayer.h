@@ -15,7 +15,7 @@ namespace Eden {
 	public:
 		OpenALPlayer();
 		virtual ~OpenALPlayer();
-		
+
 		void Load(const std::string& song_name) override;
 		void Play() override;
 		void Pause() override;
@@ -64,6 +64,7 @@ namespace Eden {
 
 		std::thread               t_Play;
 		std::thread               t_DevCheck;
+		bool                      m_PlayLoopWaiting;
 		bool                      m_UseDefaultOutput;
 
 		PlayerState               m_State;
