@@ -54,7 +54,7 @@ namespace Eden {
 	{
 		EDEN_INFO("Initializing OpenAL Player!");
 
-		InitDevice(NULL);
+		InitDevice(m_PreferredDevice);
 
 		// Initialize mpg123
 		mpg123_init();
@@ -70,19 +70,48 @@ namespace Eden {
 		EDEN_INFO("OpenAL Player Initialized!");
 	}
 
-	void OpenALPlayer::InitDevice(const char* device_name)
+	char* OpenALPlayer::GetDefaultDevice()
 	{
+		if (m_PreferredDevice.empty())
+			return NULL;
+		else
+		{
+			if (std::find(m_DeviceList.begin(), m_DeviceList.end(), m_PreferredDevice) == m_DeviceList.end())
+				return NULL;
+			else
+				return (char*)m_PreferredDevice.c_str();
+		}
+	}
+
+	void OpenALPlayer::InitDevice(const std::string& device_name)
+	{
+		UpdateDeviceList();
+
+		char* device;
+
+		if (device_name.empty())
+			device = GetDefaultDevice();
+		else
+		{
+			if (std::find(m_DeviceList.begin(), m_DeviceList.end(), device_name) == m_DeviceList.end())
+			{
+				EDEN_WARN("Couldn't find {0}. Falling back to default output device!", device_name);
+				device = GetDefaultDevice();
+			}
+			else
+				device = (char*)device_name.c_str();
+		}
+
 		// Initialize and set device
 		EDEN_INFO("Initializing New Device!");
-		m_Device = alcOpenDevice(device_name);
+		m_Device = alcOpenDevice(device);
 		EDEN_ASSERT(m_Device, "Could not initialize device: {0}", device_name);
 
 		// Flush error stack
 		alGetError();
 
-		// Get current device name and update device list
+		// Get current device name
 		m_CurrentDeviceName.assign(alcGetString(m_Device, ALC_ALL_DEVICES_SPECIFIER));
-		UpdateDeviceList();
 
 		// Create context
 		m_Context = alcCreateContext(m_Device, NULL);
@@ -136,7 +165,7 @@ namespace Eden {
 		alGetError();
 	}
 
-	void OpenALPlayer::DeviceReset(const char* device_name)
+	void OpenALPlayer::DeviceReset(const std::string& device_name)
 	{
 		bool play = false;
 		if (m_State == PlayerPlay)
@@ -163,7 +192,7 @@ namespace Eden {
 		msleep(100);
 
 		m_UseDefaultOutput = false;
-		DeviceReset((const char*)device_name.c_str());
+		DeviceReset(device_name);
 		EDEN_INFO("Output device set!");
 	}
 
@@ -324,8 +353,20 @@ namespace Eden {
 			{
 				std::string currentDevice(alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER));
 				alGetError();
-				if (m_CurrentDeviceName.compare(currentDevice) != 0)
-					DeviceReset(NULL);
+
+				if (m_PreferredDevice.empty())
+				{
+					if (m_CurrentDeviceName.compare(currentDevice) != 0)
+						DeviceReset(m_PreferredDevice);
+				}
+				else
+					if (m_PreferredDevice.compare(m_CurrentDeviceName) != 0)
+						if (std::find(temp.begin(), temp.end(), m_PreferredDevice) != temp.end())
+						{
+							EDEN_TRACE("{0}: {1}", m_PreferredDevice, currentDevice);
+							EDEN_INFO("Found {0}. Switching!", m_PreferredDevice);
+							DeviceReset(m_PreferredDevice);
+						}
 			}
 
 			else
@@ -333,7 +374,7 @@ namespace Eden {
 				if (std::find(temp.begin(), temp.end(), m_CurrentDeviceName) == temp.end())
 				{
 					m_UseDefaultOutput = true;
-					DeviceReset(NULL);
+					DeviceReset(m_PreferredDevice);
 				}
 			}
 

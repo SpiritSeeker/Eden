@@ -34,12 +34,14 @@ namespace Eden {
 
 		// Command string functions
 		void SetDevice(const std::string& device_name);
+		void SetPreferredDevice(const std::string& device_name) { m_PreferredDevice = device_name; }
 		std::string GetCurrentDevice() { return m_CurrentDeviceName; }
 		std::list<std::string> GetDeviceList() { return m_DeviceList; }
 		void UpdateDeviceList();
 
-		void DeviceReset(const char* device_name);
-		void InitDevice(const char* device_name);
+		char* GetDefaultDevice();
+		void DeviceReset(const std::string& device_name);
+		void InitDevice(const std::string& device_name);
 		void AsyncPlay();
 		void DeviceCheck();
 	private:
@@ -68,6 +70,7 @@ namespace Eden {
 		bool                      m_Mute = false;
 
 		std::string               m_CurrentDeviceName;
+		std::string               m_PreferredDevice;
 		std::list<std::string>    m_DeviceList;
 		std::string               m_CurrentSong;
 		double                    m_Duration;            // Duration in seconds
