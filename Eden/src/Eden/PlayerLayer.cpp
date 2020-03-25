@@ -102,7 +102,7 @@ namespace Eden {
       }
 
       default:
-        EDEN_WARN("Invalid shortcut: {0} ({1})", (char)e.GetKeyCode(), e.GetKeyCode());
+        EDEN_WARN("Invalid shortcut: {0} ({1})", KeyCodeToString(e.GetKeyCode()), e.GetKeyCode());
     }
 
     return true;
