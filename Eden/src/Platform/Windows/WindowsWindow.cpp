@@ -1,19 +1,19 @@
-#include "aepch.h"
+#include "edenpch.h"
 #include "WindowsWindow.h"
 
-#include "Ancora/Events/ApplicationEvent.h"
-#include "Ancora/Events/MouseEvent.h"
-#include "Ancora/Events/KeyEvent.h"
+#include "Eden/Events/ApplicationEvent.h"
+#include "Eden/Events/MouseEvent.h"
+#include "Eden/Events/KeyEvent.h"
 
 #include <glad/glad.h>
 
-namespace Ancora {
+namespace Eden {
 
 	static bool s_GLFWInitialized = false;
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		AE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
+		EDEN_ERROR("GLFW Error ({0}): {1}", error, description);
 	}
 
 	Window* Window::Create(const WindowProps& props)
@@ -37,12 +37,12 @@ namespace Ancora {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-		AE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+		EDEN_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			AE_CORE_ASSERT(success, "Could not initialize GLFW!");
+			EDEN_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
@@ -100,7 +100,7 @@ namespace Ancora {
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int key)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			
+
 			KeyTypedEvent event(key);
 			data.EventCallback(event);
 		});
@@ -124,7 +124,7 @@ namespace Ancora {
 					break;
 				}
 
-			}			
+			}
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)

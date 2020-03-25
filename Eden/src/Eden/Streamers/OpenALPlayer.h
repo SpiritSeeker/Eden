@@ -19,7 +19,13 @@ namespace Eden {
 		void Play() override;
 		void Pause() override;
 		void Stop() override;
-		
+
+		int GetVolume() override { return m_Volume; }
+		void SetVolume(int volume) override;
+		void Mute() override;
+		void UnMute() override;
+		bool IsMuted() override { return m_Mute; }
+
 		PlayerState GetPlayerState() override { return m_State; }
 		double GetCurrentPosition() override { return m_CurrentPosition; }
 	private:
@@ -58,6 +64,8 @@ namespace Eden {
 		ALuint                    m_BuffHolder[4];
 		ALuint                    m_MyBuff;
 		ALCint                    m_connected;
+		int                       m_Volume = 100;
+		bool                      m_Mute = false;
 
 		std::string               m_CurrentDeviceName;
 		std::list<std::string>    m_DeviceList;

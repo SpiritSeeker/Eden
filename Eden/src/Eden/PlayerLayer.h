@@ -18,10 +18,12 @@ namespace Eden {
     virtual void OnUpdate() override;
     virtual void OnEvent(Event& event) override;
 
+    // Temporary functions for testing. To be removed later
     void Load(const std::string& song_name) { m_Player->Load(song_name); }
     void Play() { m_Player->Play(); }
     void Pause() { m_Player->Pause(); }
     void Stop() { m_Player->Stop(); }
+    void SetVolume(float volume) { m_Player->SetVolume(volume); }
   private:
     bool OnKeyPressed(KeyPressedEvent& e);
 

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Ancora/Window.h"
+#include "Eden/Window.h"
 
 #include <GLFW/glfw3.h>
 
-namespace Ancora {
+namespace Eden {
 
 	class WindowsWindow : public Window
 	{

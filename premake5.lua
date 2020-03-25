@@ -59,6 +59,7 @@ project "Eden"
 	defines
 	{
 		"EDEN_BUILD_DLL",
+		"EDEN_LOGGING",
 		"GLFW_INCLUDE_NONE"
 	}
 

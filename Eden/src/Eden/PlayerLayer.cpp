@@ -74,6 +74,33 @@ namespace Eden {
         break;
       }
 
+      case EDEN_KEY_UP:
+      {
+        int current_volume = m_Player->GetVolume() + 5;
+        if (current_volume > 100)
+          current_volume = 100;
+        m_Player->SetVolume(current_volume);
+        break;
+      }
+
+      case EDEN_KEY_DOWN:
+      {
+        int current_volume = m_Player->GetVolume() - 5;
+        if (current_volume < 0)
+          current_volume = 0;
+        m_Player->SetVolume(current_volume);
+        break;
+      }
+
+      case EDEN_KEY_M:
+      {
+        if (m_Player->IsMuted())
+          m_Player->UnMute();
+        else
+          m_Player->Mute();
+        break;
+      }
+
       default:
         EDEN_WARN("Invalid shortcut: {0} ({1})", (char)e.GetKeyCode(), e.GetKeyCode());
     }

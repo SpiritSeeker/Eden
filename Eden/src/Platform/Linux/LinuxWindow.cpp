@@ -42,7 +42,7 @@ namespace Eden {
 		if (!s_GLFWInitialized)
 		{
 			int success = glfwInit();
-			// EDEN_ASSERT(success, "Could not initialize GLFW!");
+			EDEN_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 			s_GLFWInitialized = true;
 		}
@@ -102,7 +102,7 @@ namespace Eden {
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int key)
 		{
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			
+
 			KeyTypedEvent event(key);
 			data.EventCallback(event);
 		});
@@ -126,7 +126,7 @@ namespace Eden {
 					break;
 				}
 
-			}			
+			}
 		});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)

@@ -28,11 +28,11 @@ static std::list<std::string> list_audio_devices(const ALCchar *devs)
 	std::list<std::string> device_list;
 
 	while (device && *device != '\0' && next && *next != '\0') {
-			len = strlen(device);
-			std::string dev(device, len);
-			device_list.push_back(dev);
-			device += (len + 1);
-			next += (len + 2);
+		len = strlen(device);
+		std::string dev(device, len);
+		device_list.push_back(dev);
+		device += (len + 1);
+		next += (len + 2);
 	}
 
 	return device_list;
@@ -75,11 +75,7 @@ namespace Eden {
 		// Initialize and set device
 		EDEN_INFO("Initializing New Device!");
 		m_Device = alcOpenDevice(device_name);
-		if (!m_Device)
-		{
-			EDEN_ERROR("Open Device: {0}", alGetError());
-			exit(0);
-		}
+		EDEN_ASSERT(m_Device, "Could not initialize device: {0}", device_name);
 
 		// Flush error stack
 		alGetError();
@@ -90,28 +86,19 @@ namespace Eden {
 
 		// Create context
 		m_Context = alcCreateContext(m_Device, NULL);
-		if (!alcMakeContextCurrent(m_Context))
-		{
-			EDEN_ERROR("Failed to generate context!");
-			exit(0);
-		}
+		EDEN_ASSERT(alcMakeContextCurrent(m_Context), "Failed to generate context!");
 		alGetError();
 
 		// Create a source
 		alGenSources((ALuint)1, &m_Source);
-		if ((m_Error = alGetError()) != AL_NO_ERROR)
-		{
-			EDEN_ERROR("Failed to generate source!");
-			exit(0);
-		}
+		EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to generate source!");
+
+		// Set source gain
+		alSourcef(m_Source, AL_GAIN, (float)m_Volume / 100.0f);
 
 		// Create buffers
 		alGenBuffers((ALuint)4, m_BufferID);
-		if ((m_Error = alGetError()) != AL_NO_ERROR)
-		{
-			EDEN_ERROR("Failed to generate buffers! {0}", m_Error);
-			exit(0);
-		}
+		EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to generate buffers! {0}", m_Error);
 
 		m_BufferQueue.clear();
 		// Push buffers into queue
@@ -173,8 +160,8 @@ namespace Eden {
 	void OpenALPlayer::SetDevice(const std::string& device_name)
 	{
 		EDEN_INFO("Setting output device: {0}", device_name);
-
 		msleep(100);
+
 		m_UseDefaultOutput = false;
 		DeviceReset((const char*)device_name.c_str());
 		EDEN_INFO("Output device set!");
@@ -249,6 +236,31 @@ namespace Eden {
 			mpg123_open(m_mh, (const char*)m_CurrentSong.c_str());
 	}
 
+	void OpenALPlayer::SetVolume(int volume)
+	{
+		if (m_Volume != volume)
+		{
+			EDEN_TRACE("Setting volume: {0}%", volume);
+			if (!m_Mute)
+				alSourcef(m_Source, AL_GAIN, (float)volume / 100.0f);
+			m_Volume = volume;
+		}
+	}
+
+	void OpenALPlayer::Mute()
+	{
+		m_Mute = true;
+		EDEN_TRACE("Muting player!");
+		alSourcef(m_Source, AL_GAIN, 0);
+	}
+
+	void OpenALPlayer::UnMute()
+	{
+		m_Mute = false;
+		EDEN_TRACE("UnMuting player!");
+		alSourcef(m_Source, AL_GAIN, (float)m_Volume / 100.0f);
+	}
+
 	void OpenALPlayer::AsyncPlay()
 	{
 		while (m_State > PlayerStop)
@@ -273,35 +285,18 @@ namespace Eden {
 						m_MyBuff = m_BufferQueue.front();
 						m_BufferQueue.pop_front();
 						alBufferData(m_MyBuff, to_al_format(m_Channels, mpg123_encsize(m_Encoding)), m_Buffer, m_Done, m_Rate);
-						if ((m_Error = alGetError()) != AL_NO_ERROR)
-						{
-							EDEN_ERROR("GenBuff: {0}", m_Error);
-							EDEN_ERROR("Failed to generate buffer data!");
-							exit(0);
-						}
+						EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to generate buffer data! GenBuff: {0}", m_Error);
 
 						alSourceQueueBuffers(m_Source, 1, &m_MyBuff);
-						if ((m_Error = alGetError()) != AL_NO_ERROR)
-						{
-							EDEN_ERROR("Failed to link source: {0}", m_Error);
-							exit(0);
-						}
+						EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to link source: {0}", m_Error);
 
 						alGetSourcei(m_Source, AL_SOURCE_STATE, &m_SourceState);
-						if ((m_Error = alGetError()) != AL_NO_ERROR)
-						{
-							EDEN_ERROR("Failed to get source state!");
-							exit(0);
-						}
+						EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to get source state!");
 
 						if (m_SourceState != AL_PLAYING)
 						{
 							alSourcePlay(m_Source);
-							if ((m_Error = alGetError()) != AL_NO_ERROR)
-							{
-								EDEN_ERROR("Failed to play source!");
-								exit(0);
-							}
+							EDEN_ASSERT((m_Error = alGetError()) == AL_NO_ERROR, "Failed to play source!");
 						}
 					}
 

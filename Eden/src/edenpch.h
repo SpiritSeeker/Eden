@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <functional>
 #include <time.h>
+#include <cmath>
 
 #include <list>
 #include <string>
