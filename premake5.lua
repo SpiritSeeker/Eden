@@ -27,8 +27,9 @@ include "Eden/vendor/Glad"
 
 project "Eden"
 	location "Eden"
-	kind "SharedLib"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -72,12 +73,12 @@ project "Eden"
 	}
 
 	filter "system:linux"
-		cppdialect "C++17"
-		staticruntime "On"
+		kind "SharedLib"
 
 		defines
 		{
-			"EDEN_PLATFORM_LINUX"
+			"EDEN_PLATFORM_LINUX",
+			"EDEN_DYNAMIC_LINK"
 		}
 
 		files
@@ -87,9 +88,8 @@ project "Eden"
 		}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
+		kind "StaticLib"
 
 		defines
 		{
@@ -104,20 +104,25 @@ project "Eden"
 
 	filter "configurations:Debug"
 		defines "EDEN_DEBUG"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "EDEN_RELEASE"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "EDEN_DIST"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 project "Sandbox"
 	location "Sandbox"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -140,8 +145,6 @@ project "Sandbox"
 	}
 
 	filter "system:linux"
-		cppdialect "C++17"
-		staticruntime "On"
 
 		defines
 		{
@@ -149,8 +152,6 @@ project "Sandbox"
 		}
 
 	filter "system:windows"
-		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -160,12 +161,15 @@ project "Sandbox"
 
 	filter "configurations:Debug"
 		defines "EDEN_DEBUG"
-		symbols "On"
+		runtime "Debug"
+		symbols "on"
 
 	filter "configurations:Release"
 		defines "EDEN_RELEASE"
-		optimize "On"
+		runtime "Release"
+		optimize "on"
 
 	filter "configurations:Dist"
 		defines "EDEN_DIST"
-		optimize "On"
+		runtime "Release"
+		optimize "on"

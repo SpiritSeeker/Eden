@@ -6,8 +6,7 @@ This project is undergoing heavy rework and hopefully will turn out to be better
 ## Dependecies
 #### libmpg123
 1. Download the tar.gz file from [here](http://mpg123.org/snapshot)
-2. Extract the zip file, and cd to the folder.
-3. Then open a terminal
+2. Extract the zip file, and cd to the folder and run
 ```shell
 ./configure
 make

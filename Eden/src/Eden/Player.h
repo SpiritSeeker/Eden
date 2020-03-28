@@ -2,7 +2,6 @@
 
 #include "Eden/Core.h"
 
-// Rework this: Each Layer should have a Player (or rather make a Player stack)
 namespace Eden {
 
 	// Empty implies song not loaded
