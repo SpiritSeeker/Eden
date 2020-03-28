@@ -56,7 +56,7 @@ namespace Eden {
           else
             m_Player->Play();
         }
-        break;
+        return true;
       }
       // Temporary. Replace with playlist
       case EDEN_KEY_LEFT:
@@ -71,7 +71,7 @@ namespace Eden {
           else if (m_Player->GetPlayerState() == PlayerPause)
             m_Player->Stop();
         }
-        break;
+        return true;
       }
 
       case EDEN_KEY_UP:
@@ -80,7 +80,7 @@ namespace Eden {
         if (current_volume > 100)
           current_volume = 100;
         m_Player->SetVolume(current_volume);
-        break;
+        return true;
       }
 
       case EDEN_KEY_DOWN:
@@ -89,7 +89,7 @@ namespace Eden {
         if (current_volume < 0)
           current_volume = 0;
         m_Player->SetVolume(current_volume);
-        break;
+        return true;
       }
 
       case EDEN_KEY_M:
@@ -98,14 +98,14 @@ namespace Eden {
           m_Player->UnMute();
         else
           m_Player->Mute();
-        break;
+        return true;
       }
 
       default:
         EDEN_WARN("Invalid shortcut: {0} ({1})", KeyCodeToString(e.GetKeyCode()), e.GetKeyCode());
     }
 
-    return true;
+    return false;
   }
 
 }
