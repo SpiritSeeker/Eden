@@ -3,6 +3,7 @@
 
 #include "Eden/Streamers/OpenALPlayer.h"
 #include "Eden/KeyCodes.h"
+#include "Eden/Input.h"
 
 namespace Eden {
 
@@ -61,6 +62,16 @@ namespace Eden {
       // Temporary. Replace with playlist
       case EDEN_KEY_LEFT:
       {
+        if (Input::IsKeyPressed(EDEN_KEY_LEFT_CONTROL) || Input::IsKeyPressed(EDEN_KEY_RIGHT_CONTROL))
+        {
+          EDEN_TRACE("Going back by 5 seconds!");
+          float position = m_Player->GetCurrentPosition() - 5;
+          if (position < 0)
+            position = 0;
+          m_Player->SetCurrentPosition(position);
+          return true;
+        }
+
         if (m_Player->GetCurrentPosition() > 2)
         {
           if (m_Player->GetPlayerState() == PlayerPlay)
@@ -71,6 +82,25 @@ namespace Eden {
           else if (m_Player->GetPlayerState() == PlayerPause)
             m_Player->Stop();
         }
+        return true;
+      }
+
+      case EDEN_KEY_RIGHT:
+      {
+        if (Input::IsKeyPressed(EDEN_KEY_LEFT_CONTROL) || Input::IsKeyPressed(EDEN_KEY_RIGHT_CONTROL))
+        {
+          EDEN_TRACE("Skipping ahead by 5 seconds!");
+          float position = m_Player->GetCurrentPosition() + 5;
+          // Handle switching to next song here.
+          if (position > m_Player->GetSongDuration())
+          {
+            m_Player->Stop();
+            return true;
+          }
+          m_Player->SetCurrentPosition(position);
+          return true;
+        }
+
         return true;
       }
 

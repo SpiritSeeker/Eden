@@ -27,7 +27,9 @@ namespace Eden {
 		bool IsMuted() override { return m_Mute; }
 
 		PlayerState GetPlayerState() override { return m_State; }
+		void SetCurrentPosition(float position) override;
 		double GetCurrentPosition() override { return m_CurrentPosition; }
+		double GetSongDuration() override { return m_Duration; }
 	private:
 		virtual void Init();
 		virtual void Shutdown();

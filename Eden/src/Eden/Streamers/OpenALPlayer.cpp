@@ -290,6 +290,12 @@ namespace Eden {
 		alSourcef(m_Source, AL_GAIN, (float)m_Volume / 100.0f);
 	}
 
+	void OpenALPlayer::SetCurrentPosition(float position)
+	{
+		mpg123_seek_frame(m_mh, (int)(position / mpg123_tpf(m_mh)), SEEK_SET);
+		m_CurrentPosition = position;
+	}
+
 	void OpenALPlayer::AsyncPlay()
 	{
 		while (m_State > PlayerStop)

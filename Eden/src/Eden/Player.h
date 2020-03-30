@@ -28,7 +28,9 @@ namespace Eden {
 		virtual bool IsMuted() = 0;
 
 		virtual PlayerState GetPlayerState() = 0;
+		virtual void SetCurrentPosition(float position) = 0;
 		virtual double GetCurrentPosition() = 0;
+		virtual double GetSongDuration() = 0;
 	};
 
 }
