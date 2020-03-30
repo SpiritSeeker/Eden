@@ -369,7 +369,6 @@ namespace Eden {
 					if (m_PreferredDevice.compare(m_CurrentDeviceName) != 0)
 						if (std::find(temp.begin(), temp.end(), m_PreferredDevice) != temp.end())
 						{
-							EDEN_TRACE("{0}: {1}", m_PreferredDevice, currentDevice);
 							EDEN_INFO("Found {0}. Switching!", m_PreferredDevice);
 							DeviceReset(m_PreferredDevice);
 						}
